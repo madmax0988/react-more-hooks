@@ -1,51 +1,85 @@
-import { useReducer, useRef } from "react";
-import'./App.css'
 
-const initialState=[]
-const reducer=(state,action)=>{
-  switch(action.type){
-    case "addTask":
-      return[...state,{id:state.length , text:action.content , toggle:true}]
-    case "toggleContent":
-      return state.map((div)=>(div.id===action.selectedId?{...div,toggle:!div.toggle}:div))
-    default:
-      return state
-  }
-}
+import React,{useEffect,useState} from 'react';
+import './App.css';
+import {useMemo,useCallback} from 'react';
 
-function App(){
-  const [divs,dispatch]=useReducer(reducer,initialState)
-  const ref=useRef()
-  const addTask=(inputValue)=>{
-    if(inputValue)
-    dispatch({type:"addTask",content:inputValue})
+// Do not change this
+const LARGE_NUMBER = 1000000000;
+
+function App() {
+
+
+  const [value, setValue] = useState(0);
+  const [dark, setTheme] = useState(true);
+  const [themeName, setThemeName] = useState("dark");
+  const [currentList, setList] = useState([]);
+
+
+  // should not change the LOGIC inside this function - you can make changes to the function but logic should NOT change
+  const delayFunction = useMemo(()=> {
+    console.log("Delay Function Ran")
+    for(let index=0; index<LARGE_NUMBER; index++){};
+    return value+2;
+  
+  },[value])
+
+  // should not change the LOGIC inside this function - you can make changes to the function but logic should NOT change
+  const testFunction = useCallback(()=>{
+    return [value*3 ,value*4]
+  },[value])
+
+  
+
+  // should not change this
+  useEffect(()=>{
+    console.log("Callback Function was called")
+  },[testFunction])
+
+
+
+  useEffect(()=>{
+    if(dark){
+      setThemeName("dark")
+    }
+    else{
+      setThemeName("light")
+    }
+  },[dark])
+
+
+  const handleClick = ()=>{
+    setTheme(!dark);
   }
-  const toggleContent=(id)=>{
-    dispatch({type:'toggleContent',selectedId:id})
+
+  const handleChangeValue = ()=>{
+    setValue(value+1);
   }
-  const scrollUp=()=>{
-    ref.current.focus()
+
+  const handleList = ()=>{
+    setList(testFunction);
   }
+
+  const styleTheme = {
+   backgroundColor:dark ? "black":"#ccc7c7",
+  }
+
   return (
-    <div>
-      <input ref={ref} type="text" id="inputBox" placeholder="Type here and press enter" 
-      onKeyDown={(e)=>{if(e.key==="Enter"){
-        addTask(e.target.value)
-        e.target.value=""
-      }}}/>
-      {divs.map((div)=>(
-        <div id="contentDiv" key={div.id}>
-          <div>
-           <div>{div.toggle?div.text:"This content is hidden"}</div> 
-            <button onClick={()=>toggleContent(div.id)}>Toggle</button>
-          </div>
-        </div>
-      ))}
+    
+    <div className="page" style={styleTheme}>
+      <button onClick={handleClick}>{themeName}</button>
+      <h1 >{value}</h1>
+      <button onClick={handleChangeValue}>Change Value</button>
+      <button onClick={handleList}>Show List</button>
+      <h2>{delayFunction}</h2>
       <div>
-        <button id="gbw" onClick={scrollUp}>Get Back Writing</button>
+        {currentList.map((item,index)=>{
+          return <h2 key={index}>{item}</h2>
+        })}
+
       </div>
     </div>
-  )
+    
+  );
 }
 
-export default App
+export default App;
